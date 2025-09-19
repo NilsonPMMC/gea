@@ -1,0 +1,24 @@
+# Arquivos de ambiente virtual
+venv/
+
+# Arquivos de segredos (NUNCA envie para o Git)
+.env
+
+# Arquivos de banco de dados local
+*.sqlite3
+db.sqlite3
+
+# Arquivos de cache do Python
+*.pyc
+__pycache__/
+
+# Arquivos de mídia e estáticos coletados (são gerados no servidor)
+media/
+static/
+
+# Logs
+*.log
+
+# Arquivos de IDEs
+.vscode/
+.idea/
