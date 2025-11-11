@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     'core',
 ]
 
@@ -75,7 +76,7 @@ WSGI_APPLICATION = 'geaproject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'gea_db',
         'USER': 'gea_user',
         'PASSWORD': 'Thsm@270415',
@@ -134,3 +135,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configuração de segurança para CSRF em ambiente de produção com HTTPS
 CSRF_TRUSTED_ORIGINS = ['https://gea.mogidascruzes.sp.gov.br']
+
+# automação da API de dados processos ColabGov
+CELERY_BEAT_SCHEDULE = {
+    'importar-colab-a-cada-15-minutos': {
+        'task': 'core.tasks.importar_dados_colab',
+        'schedule': 900.0,  # 900 segundos = 15 minutos
+    },
+    # Adicionaríamos outras tarefas aqui para o 1Doc, etc.
+}
