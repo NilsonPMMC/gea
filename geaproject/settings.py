@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,10 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-l#mt2@%f%ua+m(gc4jem2px5&#40$9&5ar_r9##_#-2j$au6_f'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'chave-padrao-apenas-para-dev-local')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['192.168.10.50', 'gea.mogidascruzes.sp.gov.br']
 
@@ -38,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'leaflet',
     'core',
 ]
 
@@ -77,11 +82,11 @@ WSGI_APPLICATION = 'geaproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'gea_db',
-        'USER': 'gea_user',
-        'PASSWORD': 'Thsm@270415',
-        'HOST': 'localhost', # ou o IP do servidor de banco de dados
-        'PORT': '5432',
+        'NAME': os.environ.get('DB_NAME', 'gea_db'),
+        'USER': os.environ.get('DB_USER', 'gea_user'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'), # A senha não fica mais aqui!
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 

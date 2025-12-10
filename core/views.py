@@ -109,3 +109,9 @@ def analise_servicos_view(request):
     }
 
     return render(request, 'core/analise_servicos.html', context)
+
+def performance_view(request):
+    # Esta view não precisa de cálculos,
+    # apenas renderiza o template que contém o iframe.
+    context = {}
+    return render(request, 'core/performance.html', context)

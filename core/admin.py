@@ -2,9 +2,10 @@
 
 from django.contrib import admin
 from django.utils import timezone
+from leaflet.admin import LeafletGeoAdmin
 from .models import (
     Entidade, Secretaria, Departamento, Divisao, 
-    CartaDeServicos, Processo
+    CartaDeServicos, Processo, MapeamentoServicos, Bairro
 )
 
 # --- INLINES ---
@@ -49,8 +50,8 @@ class CartaDeServicosAdmin(admin.ModelAdmin):
 
 @admin.register(Processo)
 class ProcessoAdmin(admin.ModelAdmin):
-    list_display = ('numero_protocolo', 'servico_solicitado', 'status', 'data_prazo', 'responsavel_atual', 'dias_em_aberto')
-    list_filter = ('status', 'servico_solicitado__divisao_responsavel__departamento__secretaria', 'data_prazo')
+    list_display = ('numero_protocolo', 'servico_solicitado', 'status', 'data_prazo', 'responsavel_atual', 'dias_em_aberto', 'sistema_origem')
+    list_filter = ('status', 'servico_solicitado__divisao_responsavel__departamento__secretaria', 'data_prazo', 'sistema_origem')
     search_fields = ('numero_protocolo', 'solicitante', 'responsavel_atual__username')
     readonly_fields = ('data_protocolo', 'data_prazo')
     date_hierarchy = 'data_protocolo'
@@ -81,3 +82,40 @@ class ProcessoAdmin(admin.ModelAdmin):
     def marcar_como_concluido(self, request, queryset):
         queryset.update(status='CONCLUIDO', data_conclusao=timezone.now())
         self.message_user(request, f"{queryset.count()} processos foram marcados como concluídos.")
+
+class MapeamentoPendenteFilter(admin.SimpleListFilter):
+    title = 'Status do Mapeamento'
+    parameter_name = 'mapeamento_status'
+
+    def lookups(self, request, model_admin):
+        """
+        Retorna as opções de filtro que o usuário verá.
+        (valor_da_url, texto_legivel)
+        """
+        return (
+            ('pendente', 'Pendente (Não Mapeado)'),
+            ('mapeado', 'Mapeado'),
+        )
+
+    def queryset(self, request, queryset):
+        """
+        Aplica o filtro no banco de dados.
+        """
+        if self.value() == 'pendente':
+            return queryset.filter(servico_gea__isnull=True)
+        if self.value() == 'mapeado':
+            return queryset.filter(servico_gea__isnull=False)
+        return queryset
+
+@admin.register(MapeamentoServicos)
+class MapeamentoAdmin(admin.ModelAdmin):
+    list_display = ('categoria_externa', 'sistema_origem', 'servico_gea')
+    list_filter = ('sistema_origem', MapeamentoPendenteFilter)
+    search_fields = ('categoria_externa',)
+    autocomplete_fields = ['servico_gea']
+
+@admin.register(Bairro)
+class BairroAdmin(LeafletGeoAdmin):
+    list_display = ('nome',)
+    search_fields = ('nome',)
+    display_raw = True
